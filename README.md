@@ -29,3 +29,5 @@ xterm with gunicorn service.
 # Installation
 
 - After login, click the "View Site" button at the top right to access xterm
+
+- initial superuser  admin // 123456

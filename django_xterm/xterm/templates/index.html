@@ -1,0 +1,83 @@
+<!doctype html>
+  <html style="height: calc(100% - 50px)">
+    <head>
+        <link rel="stylesheet" href="static/css/xterm.css" />
+        <script src="static/js/xterm.js"></script>
+        
+        <script src="static/js/xterm-addon-fit.js"></script>
+        <script src="static/js/xterm-addon-web-links.js"></script>
+        <script src="static/js/xterm-addon-search.js"></script>
+        <script src="static/js/socket.io.min.js"></script>
+    </head>
+
+    <body style="height: 100%">
+        <div style="background: white; padding-bottom: 5px;">
+            <span style="font-size: small;">Status: <span style="font-size: small;" id="status">connecting...</span></span>
+            <button id="button"; type="button"; onclick="goHome()";>Go To Home</button>
+        </div>
+        <div style=" width: 100%; height:100%;" id="terminal"></div>
+      <script>
+        const term = new Terminal({
+          cursorBlink: true,
+          macOptionIsMeta: true,
+          scrollback: true,
+        });
+        
+        const fit = new FitAddon.FitAddon();
+        term.loadAddon(fit);
+
+        term.open(document.getElementById('terminal'));
+        
+        fit.fit();
+        term.resize(15, 50);
+        console.log(`size: ${term.cols} columns, ${term.rows} rows`);
+        fit.fit();
+        term.writeln("Welcome to Server!");
+        
+        term.onData((data) => {
+          socket.emit("pty_input", { input: data });
+        });
+        
+        const socket = io.connect({transports: ["websocket", "polling"]});
+        const status = document.getElementById("status");
+  
+        socket.on("pty_output", function (data) {
+          console.log("new output received from server:", data.output);
+          term.write(data.output);
+        });
+  
+        socket.on("connect", () => {
+          fitToscreen();
+          status.innerHTML =
+            '<span style="background-color: lightgreen;">connected</span>';
+        });
+  
+        socket.on("disconnect", () => {
+          status.innerHTML =
+            '<span style="background-color: #ff8383;">disconnected</span>';
+        });
+        
+        
+        function fitToscreen() {
+          fit.fit();
+          const dims = { cols: term.cols, rows: term.rows };
+          console.log("sending new dimensions to server's pty", dims);
+          socket.emit("resize", dims);
+        }
+  
+        function debounce(func, wait_ms) {
+          let timeout;
+          return function (...args) {
+            const context = this;
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(context, args), wait_ms);
+          };
+        }
+        function goHome(){
+			location.href = '/admin';
+        }
+        const wait_ms = 50;
+        window.onresize = debounce(fitToscreen, wait_ms);
+      </script>
+    </body>
+  </html>

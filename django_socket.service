@@ -1,0 +1,23 @@
+[Unit]
+Description=django socket gunicorn daemon
+After=network.target
+
+[Service]
+User={USERNAME}
+Group={USERNAME}
+# Your django_socket Directory
+WorkingDirectory=/home/tirhande/django_socket
+ExecStart=/home/tirhande/django_socket/venv/bin/gunicorn \
+        --workers 1 \
+        --worker-class eventlet \
+        --capture-output \
+        --bind unix:/home/tirhande/run/django_socket.sock \
+        djangoSocket.wsgi:application \
+        --keyfile django.key \
+        --certfile django.crt \
+        --log-level debug
+# if you don't want ssl connection
+# --keyfile, --certfile remove
+
+[Install]
+WantedBy=multi-user.target

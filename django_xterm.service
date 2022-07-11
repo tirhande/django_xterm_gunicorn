@@ -1,0 +1,19 @@
+[Unit]
+Description=django xterm gunicorn daemon
+After=network.target
+
+[Service]
+User={USERNAME}
+Group={USERNAME}
+# Your django_xterm Directory
+WorkingDirectory=/home/tirhande/django_xterm
+ExecStart=/home/tirhande/django_xterm/venv/bin/gunicorn \
+        --workers 1 \
+        --preload \
+        --capture-output \
+        --bind unix:/home/tirhande/run/django_xterm.sock \
+        djangoXterm.wsgi:application \
+        --log-level debug
+
+[Install]
+WantedBy=multi-user.target

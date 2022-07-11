@@ -20,6 +20,7 @@ django_xterm and django_socket are connected by websocket to implement real-time
 This repository is a copy of
 
 [MahmoudAlyy/django-xtermjs](https://github.com/MahmoudAlyy/django-xtermjs)
+
 [cs01/pyxterms](https://github.com/cs01/pyxtermjs)
 
 xterm with gunicorn service.
